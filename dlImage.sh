@@ -12,6 +12,10 @@ usage(){
 	exit 1;
 }
 
+validate_url(){
+  if [[ `wget -S --spider $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then echo "true"; fi
+}
+
 imageDownload() {
 	file="${1}"
 	searchName="${2}"
@@ -36,8 +40,12 @@ imageDownload() {
 	fi
 
 	if [ ! -f "${images}/${name}/${name}-original.jpg" ];then
-		wget -q "${link}" -O "${images}/${name}/${name}-original.jpg"
-		echo "${images}/${name}/${name}-original.jpg Téléchargé !"
+		if `validate_url $url >/dev/null`; 
+		then 
+			wget -q "${link}" -O "${images}/${name}/${name}-original.jpg"
+			echo "${images}/${name}/${name}-original.jpg Téléchargé !"
+		else 
+			echo "does not exist"; fi
 	fi
 }
 
@@ -85,7 +93,7 @@ peopleImageDownload() {
 		if [ ! -e "./people/${i}" ];then
 			echo  "./people/${i} not exist !"
 		else
-			imageDownload "./people/${i}" "image" "name" "Peoples"
+			imageDownload "./people/${i}" "original" "name" "Peoples"
 		fi
 	done;
 }
