@@ -26,8 +26,6 @@ imageDownload() {
 	link="${link// /}"
 	link="${link/,/}"  
 	
-	echo $link
-	
 	if [ "$name" = 'slug":null,' ];then
 		name=$(./parseJson.sh ${1} "name")
 		echo "${name}"
