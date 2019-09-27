@@ -18,7 +18,11 @@ usage(){
 }
 
 validate_url(){
-  if [[ `wget -S --spider $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 1; else return 0; fi
+	if [[ `wget -S --spider $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]];then 
+		return 0; 
+	else 
+		return 1; 
+	fi
 }
 
 imageDownload() {
@@ -45,8 +49,10 @@ imageDownload() {
 	fi
 	
 	if [ ! -f "${images}/${name}/${name}-original.jpg" ];then
-		if [[ validate_url $link == 1 ]];then
-			#wget -q "${link}" -O "${images}/${name}/${name}-original.jpg"
+		validate_url "$link"
+		tmp=$?
+		if [ $tmp -eq 0 ];then
+			wget -q "${link}" -O "${images}/${name}/${name}-original.jpg"
 			echo "${images}/${name}/${name}-original.jpg Téléchargé !"
 		else
 			if ${flag_character};then
@@ -58,6 +64,7 @@ imageDownload() {
 			elif ${flag_manga};then
 				echo "${5}" >> "missing_manga_image.txt"
 			fi
+			rmdir "${images}/${name}"
 		fi
 	fi
 }
