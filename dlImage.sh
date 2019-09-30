@@ -148,16 +148,12 @@ if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "-usage" ]
 	usage
 elif [ "${1}" = "-c" ];then
 	flag_character=true
-	characterImageDowload "${2}" "${3}"
 elif [ "${1}" = "-a" ];then
 	flag_anime=true
-	animeImageDowload "${2}" "${3}"
 elif [ "${1}" = "-m" ];then
 	flag_manga=true
-	mangaImageDownload
 elif [ "${1}" = "-p" ];then
 	flag_people=true
-	peopleImageDownload "${2}" "${3}"
 else
 	usage
 fi
@@ -170,28 +166,28 @@ elif [ "${2}" = "-zm" ];then
 fi
 
 if ${flag_character};then
-	if [ ${flag_Zip} | ${flag_ZipAndMove} ];then
+	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ] ;then
 		zip_file "Images/Characters"
 	else
 		characterImageDowload "${2}" "${3}"
 	fi
 elif ${flag_people};then
-	if [ ${flag_Zip} | ${flag_ZipAndMove} ];then
+	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ] ;then
 		zip_file "Images/Peoples"
 	else
 		peopleImageDowload "${2}" "${3}"
 	fi
 elif ${flag_anime};then
-	if [ ${flag_Zip} | ${flag_ZipAndMove} ];then
+	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ];then
 		zip_file "Images/Animes"
 	else
 		animeImageDowload "${2}" "${3}"
 	fi
 elif ${flag_manga};then
-	if [ ${flag_Zip} | ${flag_ZipAndMove} ];then
+	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ];then
 		zip_file "Images/Mangas"
 	else
-		mangaImageDowload "${2}" "${3}"
+		mangaImageDowload
 	fi
 fi
 
