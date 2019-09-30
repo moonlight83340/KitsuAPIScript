@@ -6,12 +6,18 @@ flag_character=false
 flag_people=false
 flag_anime=false
 flag_manga=false
+flag_ZipAndMove=false
+flag_Zip=false
 
 usage(){
 	echo -e "Usage:  $0 <TYPE> [IDStart] [IDEnd] \n\
 	$0 -h : For help\n\
 	$0 --help : For help\n\
 	$0 -usage : For help\n\
+	$0 <TYPE> [OPTION] \n\
+	[OPTION] : \n\
+	-z : Zip the directory \n\
+	-zm : Zip the directory and delete it\n\
 	<TYPE> = -m = manga, -a = anime, -c = character, -p = people\n\
 	"
 	exit 1;
@@ -22,6 +28,18 @@ validate_url(){
 		return 0; 
 	else 
 		return 1; 
+	fi
+}
+
+zip_file(){
+	directoryName="${1}"
+	firstFileName=$(ls "${directory}" | head -n 1)
+	lastFileName=$(ls "{directory}" | tail -n 1)
+	zipName="${images}_${directoryName}_${firstFileName}-${lastFileName}.zip"
+	if ${flag_ZipAndMove} ;then
+		zip -r -m "${zipName}" "${directoryName}"
+	else
+		zip -r "${zipName}" "${directoryName}"
 	fi
 }
 
@@ -143,4 +161,38 @@ elif [ "${1}" = "-p" ];then
 else
 	usage
 fi
+
+if [ "${2}" = "-z" ];then
+	flag_Zip=true
+	
+elif [ "${2}" = "-zm" ];then	
+	flag_ZipAndMove=true
+fi
+
+if ${flag_character};then
+	if [ ${flag_Zip} | ${flag_ZipAndMove} ];then
+		zip_file "Images/Characters"
+	else
+		characterImageDowload "${2}" "${3}"
+	fi
+elif ${flag_people};then
+	if [ ${flag_Zip} | ${flag_ZipAndMove} ];then
+		zip_file "Images/Peoples"
+	else
+		peopleImageDowload "${2}" "${3}"
+	fi
+elif ${flag_anime};then
+	if [ ${flag_Zip} | ${flag_ZipAndMove} ];then
+		zip_file "Images/Animes"
+	else
+		animeImageDowload "${2}" "${3}"
+	fi
+elif ${flag_manga};then
+	if [ ${flag_Zip} | ${flag_ZipAndMove} ];then
+		zip_file "Images/Mangas"
+	else
+		mangaImageDowload "${2}" "${3}"
+	fi
+fi
+
 exit 0
