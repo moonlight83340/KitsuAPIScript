@@ -33,13 +33,13 @@ validate_url(){
 
 zip_file(){
 	directoryName="${1}"
-	firstFileName=$(ls "${directory}" | head -n 1)
-	lastFileName=$(ls "{directory}" | tail -n 1)
-	zipName="${images}_${directoryName}_${firstFileName}-${lastFileName}.zip"
+	firstFileName=$(ls "${image}/${directoryName}" | head -n 1)
+	lastFileName=$(ls "${image}/${directoryName}" | tail -n 1)
+	zipName="${image}_${directoryName}_${firstFileName}-${lastFileName}.zip"
 	if ${flag_ZipAndMove} ;then
-		zip -r -m "${zipName}" "${directoryName}"
+		zip -r -m "${zipName}" "${image}/${directoryName}"
 	else
-		zip -r "${zipName}" "${directoryName}"
+		zip -r "${zipName}" "${image}/${directoryName}"
 	fi
 }
 
@@ -167,25 +167,25 @@ fi
 
 if ${flag_character};then
 	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ] ;then
-		zip_file "Images/Characters"
+		zip_file "Characters"
 	else
 		characterImageDowload "${2}" "${3}"
 	fi
 elif ${flag_people};then
 	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ] ;then
-		zip_file "Images/Peoples"
+		zip_file "Peoples"
 	else
 		peopleImageDowload "${2}" "${3}"
 	fi
 elif ${flag_anime};then
 	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ];then
-		zip_file "Images/Animes"
+		zip_file "Animes"
 	else
 		animeImageDowload "${2}" "${3}"
 	fi
 elif ${flag_manga};then
 	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ];then
-		zip_file "Images/Mangas"
+		zip_file "Mangas"
 	else
 		mangaImageDowload
 	fi
