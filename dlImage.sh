@@ -60,7 +60,7 @@ imageDownload() {
 
 	if [ "$name" = 'slug":null,' ];then
 		name=$(./parseJson.sh ${1} "name")
-		if ! ${flag_Verbose};then
+		if ${flag_Verbose};then
 			echo "${name}"
 		fi
 	fi
@@ -74,7 +74,7 @@ imageDownload() {
 		tmp=$?
 		if [ $tmp -eq 0 ];then
 			wget -q "${link}" -O "${images}/${name}/${name}-original.jpg"
-			if ! ${flag_Verbose};then
+			if ${flag_Verbose};then
 				echo "${images}/${name}/${name}-original.jpg Téléchargé !"
 			fi
 		else
@@ -97,7 +97,7 @@ characterImageDowload() {
 	idEnd="${2}"
 	for(( i="${idStart}"; i<="${idEnd}"; i++ ));do
 		if [ ! -e "./characters/${i}" ];then
-			if ! ${flag_Verbose};then
+			if ${flag_Verbose};then
 				echo  "./characters/${i} not exist !"
 			fi
 		else
@@ -112,7 +112,7 @@ animeImageDowload() {
 	idEnd="${2}"
 	for(( i="${idStart}"; i<="${idEnd}"; i++ ));do
 		if [ ! -e "./anime/${i}" ];then
-			if ! ${flag_Verbose};then
+			if ${flag_Verbose};then
 				echo  "./anime/${i} not exist !"
 			fi
 		else
@@ -140,7 +140,7 @@ peopleImageDownload() {
 	idEnd="${2}"
 	for(( i="${idStart}"; i<="${idEnd}"; i++ ));do
 		if [ ! -e "./people/${i}" ];then
-			if ! ${flag_Verbose};then
+			if ${flag_Verbose};then
 				echo  "./people/${i} not exist !"
 			fi
 		else
