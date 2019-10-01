@@ -166,25 +166,25 @@ elif [ "${2}" = "-zm" ];then
 fi
 
 if ${flag_character};then
-	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ] ;then
+	if ${flag_Zip} || ${flag_ZipAndMove} ;then
 		zip_file "Characters"
 	else
 		characterImageDowload "${2}" "${3}"
 	fi
 elif ${flag_people};then
-	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ] ;then
+	if ${flag_Zip} || ${flag_ZipAndMove} ;then
 		zip_file "Peoples"
 	else
 		peopleImageDowload "${2}" "${3}"
 	fi
 elif ${flag_anime};then
-	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ];then
+	if ${flag_Zip} || ${flag_ZipAndMove} ;then
 		zip_file "Animes"
 	else
 		animeImageDowload "${2}" "${3}"
 	fi
 elif ${flag_manga};then
-	if [ ${flag_Zip} ] || [ ${flag_ZipAndMove} ];then
+	if ${flag_Zip} || ${flag_ZipAndMove} ;then
 		zip_file "Mangas"
 	else
 		mangaImageDowload
