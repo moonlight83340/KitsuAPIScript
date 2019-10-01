@@ -123,7 +123,7 @@ animeImageDowload() {
 }
 
 mangaImageDownload() {
-	for dir in manga0-40692_chapters0-70920		movies.remove(movie);5/mangas/*;do
+	for dir in manga0-40692_chapters0-709205/mangas/*;do
 		if [ -d ${dir} ]; then
 			# Will not run if no directories are available
 			num="${dir##manga0-40692_chapters0-709205/mangas/}"
@@ -176,6 +176,7 @@ elif [ "${2}" = "-zm" ];then
 	flag_ZipAndMove=true
 elif [ "${2}" = "-v" ];then
 	flag_Verbose=true
+	shift
 fi
 
 if ${flag_character};then
