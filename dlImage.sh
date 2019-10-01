@@ -8,6 +8,7 @@ flag_anime=false
 flag_manga=false
 flag_ZipAndMove=false
 flag_Zip=false
+flag_Verbose=false
 
 usage(){
 	echo -e "Usage:  $0 <TYPE> [IDStart] [IDEnd] \n\
@@ -59,7 +60,9 @@ imageDownload() {
 
 	if [ "$name" = 'slug":null,' ];then
 		name=$(./parseJson.sh ${1} "name")
-		echo "${name}"
+		if ${flag_Verbose};then
+			echo "${name}"
+		fi
 	fi
 	
 	if [ ! -d "${images}/${name}" ];then
@@ -71,7 +74,9 @@ imageDownload() {
 		tmp=$?
 		if [ $tmp -eq 0 ];then
 			wget -q "${link}" -O "${images}/${name}/${name}-original.jpg"
-			echo "${images}/${name}/${name}-original.jpg Téléchargé !"
+			if ${flag_Verbose};then
+				echo "${images}/${name}/${name}-original.jpg Téléchargé !"
+			fi
 		else
 			if ${flag_character};then
 				echo "${5}" >> "missing_character_image.txt"
@@ -92,7 +97,9 @@ characterImageDowload() {
 	idEnd="${2}"
 	for(( i="${idStart}"; i<="${idEnd}"; i++ ));do
 		if [ ! -e "./characters/${i}" ];then
-			echo  "./characters/${i} not exist !"
+			if ${flag_Verbose};then
+				echo  "./characters/${i} not exist !"
+			fi
 		else
 			imageDownload "./characters/${i}" "original" "slug" "Characters" "${i}"
 		fi
@@ -105,7 +112,9 @@ animeImageDowload() {
 	idEnd="${2}"
 	for(( i="${idStart}"; i<="${idEnd}"; i++ ));do
 		if [ ! -e "./anime/${i}" ];then
-			echo  "./anime/${i} not exist !"
+			if ${flag_Verbose};then
+				echo  "./anime/${i} not exist !"
+			fi
 		else
 			imageDownload "./anime/${i}" "original" "en_jp" "Animes" "${i}"
 		fi
@@ -114,7 +123,7 @@ animeImageDowload() {
 }
 
 mangaImageDownload() {
-	for dir in manga0-40692_chapters0-709205/mangas/*;do
+	for dir in manga0-40692_chapters0-70920		movies.remove(movie);5/mangas/*;do
 		if [ -d ${dir} ]; then
 			# Will not run if no directories are available
 			num="${dir##manga0-40692_chapters0-709205/mangas/}"
@@ -131,7 +140,9 @@ peopleImageDownload() {
 	idEnd="${2}"
 	for(( i="${idStart}"; i<="${idEnd}"; i++ ));do
 		if [ ! -e "./people/${i}" ];then
-			echo  "./people/${i} not exist !"
+			if ${flag_Verbose};then
+				echo  "./people/${i} not exist !"
+			fi
 		else
 			imageDownload "./people/${i}" "original" "name" "Peoples" "${i}"
 		fi
@@ -163,6 +174,8 @@ if [ "${2}" = "-z" ];then
 	
 elif [ "${2}" = "-zm" ];then	
 	flag_ZipAndMove=true
+elif [ "${2}" = "-v" ];then
+	flag_Verbose=true
 fi
 
 if ${flag_character};then
