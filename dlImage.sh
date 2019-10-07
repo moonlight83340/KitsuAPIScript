@@ -34,14 +34,16 @@ validate_url(){
 
 zip_file(){
 	directoryName="${1}"
-	firstFileName=$(ls "${image}/${directoryName}" | head -n 1)
-	lastFileName=$(ls "${image}/${directoryName}" | tail -n 1)
+	firstFileName="${2}"
+	lastFileName="${3}"
 	zipName="${image}_${directoryName}_${firstFileName}-${lastFileName}.zip"
 	if ${flag_ZipAndMove} ;then
 		zip -r -m "${zipName}" "${image}/${directoryName}"
 	else
 		zip -r "${zipName}" "${image}/${directoryName}"
 	fi
+	./../gdrive upload --parent "1vSt86OMcRcFvs0l_03M_YFRqzzUOk5JY" "${zipName}"
+	rm "${zipName}"
 }
 
 imageDownload() {
@@ -173,8 +175,10 @@ fi
 
 if [ "${2}" = "-z" ];then
 	flag_Zip=true
+	shift
 elif [ "${2}" = "-zm" ];then	
 	flag_ZipAndMove=true
+	shift
 elif [ "${2}" = "-v" ];then
 	flag_Verbose=true
 	shift
@@ -182,25 +186,25 @@ fi
 
 if ${flag_character};then
 	if ${flag_Zip} || ${flag_ZipAndMove} ;then
-		zip_file "Characters"
+		zip_file "Characters" "${2}" "${3}"
 	else
 		characterImageDowload "${2}" "${3}"
 	fi
 elif ${flag_people};then
 	if ${flag_Zip} || ${flag_ZipAndMove} ;then
-		zip_file "Peoples"
+		zip_file "Peoples" "${2}" "${3}"
 	else
 		peopleImageDowload "${2}" "${3}"
 	fi
 elif ${flag_anime};then
 	if ${flag_Zip} || ${flag_ZipAndMove} ;then
-		zip_file "Animes"
+		zip_file "Animes" "${2}" "${3}"
 	else
 		animeImageDowload "${2}" "${3}"
 	fi
 elif ${flag_manga};then
 	if ${flag_Zip} || ${flag_ZipAndMove} ;then
-		zip_file "Mangas"
+		zip_file "Mangas" "${2}" "${3}"
 	else
 		mangaImageDowload
 	fi
