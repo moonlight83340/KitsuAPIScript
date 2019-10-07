@@ -157,6 +157,7 @@ touch "missing_manga_image.txt"
 
 if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "-usage" ]; then
 	usage
+	exit 0
 elif [ "${1}" = "-c" ];then
 	flag_character=true
 elif [ "${1}" = "-a" ];then
@@ -167,11 +168,11 @@ elif [ "${1}" = "-p" ];then
 	flag_people=true
 else
 	usage
+	exit 0
 fi
 
 if [ "${2}" = "-z" ];then
 	flag_Zip=true
-	
 elif [ "${2}" = "-zm" ];then	
 	flag_ZipAndMove=true
 elif [ "${2}" = "-v" ];then
