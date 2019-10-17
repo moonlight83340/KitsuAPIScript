@@ -186,6 +186,21 @@ if [ "${2}" = "-m" ];then
 	exit 0
 fi
 
+if [ "${2}" = "-mi" ];then
+	firstId="${3}"
+	lastId="${4}"
+	range=$(((lastId - firstId)/4))
+	./dlImage.sh "${1}" "-v" "${3}" $((firstId + range)) &
+	./dlImage.sh "${1}" "-v" $((firstId + range + 1)) $(( firstId + (2 * range) - 1)) &
+	./dlImage.sh "${1}" "-v" $(( firstId + (2 * range) + 1)) $(( firstId + (3 * range) - 1)) &
+	./dlImage.sh "${1}" "-v" $(( firstId + (3 * range) + 1)) "${4}" &
+	wait
+	./dlImage.sh "${1}" "-zm" "${3}" "${4}"
+	newFirstId=$((lastId + 1))
+	newLastId=$((lastId + range - 1))
+	./dlImage.sh "${1}" "-m" "${newFirstId}" "${newLastId}"
+fi
+
 if [ "${2}" = "-z" ];then
 	flag_Zip=true
 	shift
