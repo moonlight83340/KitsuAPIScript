@@ -9,6 +9,7 @@ flag_manga=false
 flag_ZipAndMove=false
 flag_Zip=false
 flag_Verbose=false
+gDriveDirectory=""
 
 usage(){
 	echo -e "Usage:  $0 <TYPE> [IDStart] [IDEnd] \n\
@@ -94,7 +95,7 @@ imageDownload() {
 	fi
 }
 
-characterImageDowload() {
+characterImageDownload() {
 	idStart="${1}"
 	idEnd="${2}"
 	for(( i="${idStart}"; i<="${idEnd}"; i++ ));do
@@ -109,7 +110,7 @@ characterImageDowload() {
 	sort -ug missing_character_image.txt -o missing_character_image.txt
 }
 
-animeImageDowload() {
+animeImageDownload() {
 	idStart="${1}"
 	idEnd="${2}"
 	for(( i="${idStart}"; i<="${idEnd}"; i++ ));do
@@ -162,12 +163,16 @@ if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "-usage" ]
 	exit 0
 elif [ "${1}" = "-c" ];then
 	flag_character=true
+	gDriveDirectory="Images_Characters"
 elif [ "${1}" = "-a" ];then
 	flag_anime=true
+	gDriveDirectory="Images_Animess"
 elif [ "${1}" = "-m" ];then
 	flag_manga=true
+	gDriveDirectory="Images_Mangas"
 elif [ "${1}" = "-p" ];then
 	flag_people=true
+	gDriveDirectory="Images_Peoples"
 else
 	usage
 	exit 0
@@ -191,14 +196,38 @@ if [ "${2}" = "-mi" ];then
 	lastId="${4}"
 	range=$(((lastId - firstId)/4))
 	./dlImage.sh "${1}" "-v" "${3}" $((firstId + range)) &
-	./dlImage.sh "${1}" "-v" $((firstId + range + 1)) $(( firstId + (2 * range) - 1)) &
-	./dlImage.sh "${1}" "-v" $(( firstId + (2 * range) + 1)) $(( firstId + (3 * range) - 1)) &
+	./dlImage.sh "${1}" "-v" $((firstId + range + 1)) $(( firstId + (2 * range))) &
+	./dlImage.sh "${1}" "-v" $(( firstId + (2 * range) + 1)) $(( firstId + (3 * range) )) &
 	./dlImage.sh "${1}" "-v" $(( firstId + (3 * range) + 1)) "${4}" &
 	wait
 	./dlImage.sh "${1}" "-zm" "${3}" "${4}"
 	newFirstId=$((lastId + 1))
-	newLastId=$((lastId + range - 1))
-	./dlImage.sh "${1}" "-m" "${newFirstId}" "${newLastId}"
+	newLastId=$(((lastId - firstId) - 1))
+	./dlImage.sh "${1}" "-mi" "${newFirstId}" "${newLastId}"
+fi
+
+if [ "${2}" = "-mia" ];then
+	firstId="$(./gdrive list | grep -E "${gDriveDirectory}_[0-9]+-[0-9]+.zip" | sed -r 's/.*-([0-9]*)\..*/\1/g' | head -1)"
+	firstId=${firstId:=1}
+	range="${3}"
+	lastId=$((firstId + range))	
+	range=$(((lastId - firstId)/4))
+	echo "Start dowload at ${firstId}"
+	echo "Range will be : ${range}"
+	echo "${firstId} $((firstId + range))"
+	echo "$((firstId + range + 1)) $(( firstId + (2 * range)))"
+	echo "$(( firstId + (2 * range) + 1)) $(( firstId + (3 * range)))"
+	echo "$(( firstId + (3 * range) + 1)) ${lastId}"
+	./dlImage.sh "${1}" "-v" "${firstId}" $((firstId + range)) &
+	./dlImage.sh "${1}" "-v" $((firstId + range + 1)) $(( firstId + (2 * range))) &
+	./dlImage.sh "${1}" "-v" $(( firstId + (2 * range) + 1)) $(( firstId + (3 * range))) &
+	./dlImage.sh "${1}" "-v" $(( firstId + (3 * range) + 1)) "${lastId}" &
+	wait
+	./dlImage.sh "${1}" "-zm" "${firstId}" "${lastId}"
+	newFirstId=$((lastId + 1))
+	newLastId=$(((lastId - firstId) - 1))
+	./dlImage.sh "${1}" "-mia" "${3}"
+	exit 0
 fi
 
 if [ "${2}" = "-z" ];then
@@ -216,25 +245,25 @@ if ${flag_character};then
 	if ${flag_Zip} || ${flag_ZipAndMove} ;then
 		zip_file "Characters" "${2}" "${3}"
 	else
-		characterImageDowload "${2}" "${3}"
+		characterImageDownload "${2}" "${3}"
 	fi
 elif ${flag_people};then
 	if ${flag_Zip} || ${flag_ZipAndMove} ;then
 		zip_file "Peoples" "${2}" "${3}"
 	else
-		peopleImageDowload "${2}" "${3}"
+		peopleImageDownload "${2}" "${3}"
 	fi
 elif ${flag_anime};then
 	if ${flag_Zip} || ${flag_ZipAndMove} ;then
 		zip_file "Animes" "${2}" "${3}"
 	else
-		animeImageDowload "${2}" "${3}"
+		animeImageDownload "${2}" "${3}"
 	fi
 elif ${flag_manga};then
 	if ${flag_Zip} || ${flag_ZipAndMove} ;then
 		zip_file "Mangas" "${2}" "${3}"
 	else
-		mangaImageDowload
+		mangaImageDownload
 	fi
 fi
 
