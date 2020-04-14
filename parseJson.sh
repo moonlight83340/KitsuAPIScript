@@ -7,7 +7,7 @@ function readJson {
 	elif [[ "$UNAMESTR" == 'Darwin' ]]; then
 		SED_EXTENDED='-E'
 	fi
-	VALUE=`cat ${1} | sed -e "s/,\"/ ,\n\"/g" | sed -e "s/}/\n}\n/g" | sed -e "s/{/\n{\n/g" | sed -e "s/:/ : /g" | grep -m 1 "\"${2}\"" | sed ${SED_EXTENDED} 's/^ *//;s/.*: *"//;s/",?//'`
+	VALUE=`cat ${1} | sed -e "s/,\"/ ,\n\"/g" | sed -e "s/}/\n}\n/g" | sed -e "s/{/\n{\n/g" | sed -e "s/:/ : /g" | grep -m 1 "\"${2}\"" | sed ${SED_EXTENDED} 's/^ *//;s/.*: *"//;s/",?$//'`
 	if [ ! "$VALUE" ]; then
 		echo "Error: Cannot find \"${2}\" in ${1}" >&2
 		#exit 1

@@ -5,17 +5,17 @@ image="Images"
 charactersDIR="characters"
 animeDIR="animes"
 descriptionDIR="Description"
-peopleDIR="people"
-mangaDIR="mangas"
+peopleDIR="peoples"
+mangaDIR="manga0-40692_chapters0-709205/mangas"
 
-lastArtworkTXT="SQL_last_artwork.txt"
-lastAnimeTXT="SQL_last_anime.txt"
-lastMangaTXT="SQL_last_manga.txt"
-lastLightNovelTXT="SQL_last_light_novel.txt"
-lastCharacterTXT="SQL_last_character.txt"
-lastEpisodeTXT="SQL_last_episode.txt"
-lastChapterTXT="SQL_last_chapter.txt"
-lastPeopleTXT="SQL_last_people.txt"
+lastArtworkTXT="last_artwork.txt"
+lastAnimeTXT="last_anime.txt"
+lastMangaTXT="last_manga.txt"
+lastLightNovelTXT="last_light_novel.txt"
+lastCharacterTXT="last_character.txt"
+lastEpisodeTXT="last_episode.txt"
+lastChapterTXT="last_chapter.txt"
+lastPeopleTXT="last_people.txt"
 
 lastArtwork="0"
 lastAnime="0"
@@ -26,18 +26,18 @@ lastEpisode="0"
 lastChapter="0"
 lastPeople="0"
 
-mangaTXT="SQL_manga.txt"
-chapterTXT="SQL_chapter.txt"
-characterTXT="SQL_character.txt"
-animeTXT="SQL_anime.txt"
-episodeTXT="SQL_episode.txt"
-peopleTXT="SQL_people.txt"
-lightNovelTXT="SQL_light_novel.txt"
-peopleTXT="SQL_people.txt"
+mangaTXT="manga.txt"
+chapterTXT="chapter.txt"
+characterTXT="character.txt"
+animeTXT="anime.txt"
+episodeTXT="episode.txt"
+peopleTXT="people.txt"
+lightNovelTXT="light_novel.txt"
+peopleTXT="people.txt"
 
-artworkMangaTXT="SQL_artworkManga.txt"
-artworkAnimeTXT="SQL_artworkAnime.txt"
-artworkLightNovelTXT="SQL_artworkLightNovel.txt"
+artworkMangaTXT="artworkManga.txt"
+artworkAnimeTXT="artworkAnime.txt"
+artworkLightNovelTXT="artworkLightNovel.txt"
 
 artworkSQL="artwork.sql"
 artworkCharacterSQL="artwork_character.sql"
@@ -2247,21 +2247,22 @@ mangaSQL(){
 	elif [ "${serialization,,}" == "zoukanyounggangan" ] ; then
 		serializationID=998
 	elif [[ "${serialization,,}" == *"null"* ]] ; then
-		serializationID="NULL"
+		serializationID=""
 	else
-		serializationID="NULL"
-		echo "${file} = ${serialization,,}" >> serializationBug.txt
+		serializationID=""
+		echo "${en_jp} = ${serialization,,}" >> serializationBug
 	fi
 	
 	if [ "${subtype,,}" = "novel" ];then
 		echo "INSERT INTO light_novel (id,artwork_id) VALUES (\"$mangaID\",\"$artworkID\");" >> $lightNovelSQL
 	else
-		echo "INSERT INTO manga (id,manga_type_id,artwork_id,serialization_id) VALUES (\"$mangaID\",\"$subtypeID\",\"$artworkID\",$serializationID);" >> $mangaSQL
+		echo "INSERT INTO manga (id,manga_type_id,artwork_id,serialization_id) VALUES (\"$mangaID\",\"$subtypeID\",\"$artworkID\",\"$serializationID\");" >> $mangaSQL
 	fi
 	
 	#dossier d'image :
-	local name_slug=$(./parseJson.sh "${file}" "slug")
-	name_slug=`echo "$name_slug" | sed -e 's/[.*"<>?:|\/]//g'`
+	local name_slug=$en_jp
+	name_slug="${name_slug//\./}"
+	name_slug="${name_slug//\//}"
 	local mangaImage="${image}/Mangas/${name_slug}/${name_slug}-original.jpg"
 	if [[ "${name_slug}" == *"null"* ]];then
 		name_slug=""
@@ -2270,14 +2271,13 @@ mangaSQL(){
 	echo "INSERT INTO artwork (id,artwork_name,artwork_vo_name,release_date,age_rating,statusId,synopsis,poster_image) VALUES (\"$artworkID\",\"$en_jp\",\"$ja_jp\",$startDate,\"$ageRating\",\"$statusID\",\"$synopsis\",\"$mangaImage\");" >> $artworkSQL
 }
 
-chapterMSQL(){
+chapterSQL(){
 	local file="${1}"
 	local chapterID="${2}"
-	local mangaID="${3}"
 	#volumeNumber nombre de volume
 	local volumeNumber=$(./parseJson.sh "${file}" "volumeNumber")
 	if [[ "${volumeNumber}" == *"null"* ]];then
-		volumeNumber="NULL"
+		volumeNumber=""
 	else
 		volumeNumber="${volumeNumber//[!0-9]/}"
 	fi
@@ -2285,7 +2285,7 @@ chapterMSQL(){
 	#number est le nombre de chapitre
 	local number=$(./parseJson.sh "${file}" "number")
 	if [[ "${number}" == *"null"* ]];then
-		number="NULL"
+		number=""
 	else
 		number="${number//[!0-9]/}"
 	fi
@@ -2312,58 +2312,10 @@ chapterMSQL(){
 	#length nombre de page du chapitre
 	local length=$(./parseJson.sh "${file}" "length")
 	if [[ "${length}" == *"null"* ]];then
-		length="NULL"
+		length=""
 	fi
 	length="${length// ,}"
-	echo "INSERT INTO chapter (id,manga_id,chapter_name,chapter_number,chapter_volume_number,chapter_release,chapter_synopsis,chapter_page_nb) VALUES (\"$chapterID\",$mangaID,\"$en_jp\",$number,$volumeNumber,$published,\"$synopsis\",$length);" >> $chapterSQL
-}
-
-chapterLNSQL(){
-	local file="${1}"
-	local chapterID="${2}"
-	local light_novel_id="${3}"
-	#volumeNumber nombre de volume
-	local volumeNumber=$(./parseJson.sh "${file}" "volumeNumber")
-	if [[ "${volumeNumber}" == *"null"* ]];then
-		volumeNumber="NULL"
-	else
-		volumeNumber="${volumeNumber//[!0-9]/}"
-	fi
-	volumeNumber="${volumeNumber// ,}"
-	#number est le nombre de chapitre
-	local number=$(./parseJson.sh "${file}" "number")
-	if [[ "${number}" == *"null"* ]];then
-		number="NULL"
-	else
-		number="${number//[!0-9]/}"
-	fi
-	number="${number// ,}"
-	#en_jp nom du chapitre
-	local en_jp=$(./parseJson.sh "${file}" "en_jp")
-	if [[ "${en_jp}" == *"null"* ]];then
-		en_jp=""
-	fi
-	en_jp="${en_jp// ,}"
-	#synopsis
-	local synopsis="" #$(./parseJson.sh "${file}" "synopsis")
-	if [[ "${synopsis}" == *"null"* ]];then
-		synopsis=""
-	fi
-	#published date de publication
-	local published=$(./parseJson.sh "${file}" "published")
-	if [[ "${published}" == *"null"* ]];then
-		published="NULL"
-	else
-		published="\"$published\""
-	fi
-	published="${published// ,}"
-	#length nombre de page du chapitre
-	local length=$(./parseJson.sh "${file}" "length")
-	if [[ "${length}" == *"null"* ]];then
-		length="NULL"
-	fi
-	length="${length// ,}"
-	echo "INSERT INTO chapter (id,light_novel_id,chapter_name,chapter_number,chapter_volume_number,chapter_release,chapter_synopsis,chapter_page_nb) VALUES (\"$chapterID\",$light_novel_id,\"$en_jp\",$number,$volumeNumber,$published,\"$synopsis\",$length);" >> $chapterSQL
+	echo "INSERT INTO chapter (id,chapter_name,chapter_number,chapter_volume_number,chapter_release,chapter_synopsis,chapter_page_nb) VALUES (\"$chapterID\",\"$en_jp\",\"$number\",\"$volumeNumber\",$published,\"$synopsis\",\"$length\");" >> $chapterSQL
 }
 
 animeSQL(){
@@ -2376,7 +2328,6 @@ animeSQL(){
 		en_jp=""
 	fi
 	en_jp="${en_jp// ,}"
-	en_jp=`echo "$en_jp" | sed "s/'/\\\'/g"`
     local ja_jp=$(./parseJson.sh "${file}" "ja_jp")
 	if [[ "${ja_jp}" == *"null"* ]];then
 		ja_jp=""
@@ -2407,7 +2358,7 @@ animeSQL(){
 	#episodeLength
 	local episodeLength=$(./parseJson.sh "${file}" "episodeLength")
 	if [[ "${episodeLength}" == *"null"* ]];then
-		episodeLength="NULL"
+		episodeLength=""
 	else
 		episodeLength="${episodeLength//[!0-9]/}"
 	fi
@@ -2418,7 +2369,6 @@ animeSQL(){
 		youtubeVideoId=""
 	fi
 	youtubeVideoId="${youtubeVideoId// ,}"
-	youtubeVideoId="${youtubeVideoId//,}"
 	local statusID=0
 	local status=$(./parseJson.sh "${file}" "status")
 	status="${status// ,}"
@@ -2435,8 +2385,10 @@ animeSQL(){
 	fi
 	
 	#dossier d'image :
-	local name_slug=$(./parseJson.sh "${file}" "slug")
-	name_slug=`echo "$name_slug" | sed -e 's/[.*"<>?:|\/]//g'`
+	local name_slug=$en_jp
+	name_slug="${name_slug//\./}"
+	name_slug="${name_slug//\//}" 
+	name_slug="${name_slug// ,//}" 
 	local animeImage="${image}/Animes/${name_slug}/${name_slug}-original.jpg"
 	if [[ "${name_slug}" == *"null"* ]];then
 		name_slug=""
@@ -2459,7 +2411,7 @@ animeSQL(){
 	fi
 	endDate="${endDate// ,}"
 	echo "INSERT INTO artwork (id,artwork_name,artwork_vo_name,release_date,age_rating,statusId,synopsis,poster_image) VALUES (\"$artworkID\",\"$en_jp\",\"$ja_jp\",$startDate,\"$ageRating\",\"$statusID\",\"$synopsis\",\"$animeImage\");" >> $artworkSQL
-	echo "INSERT INTO anime (id,anime_type_id,artwork_id,episode_length,youtube_video) VALUES (\"$animeID\",\"$subtypeID\",\"$artworkID\",$episodeLength,\"$youtubeVideoId\");" >> $animeSQL
+	echo "INSERT INTO anime (id,anime_type_id,artwork_id,episode_length,youtube_video) VALUES (\"$animeID\",\"$subtypeID\",\"$artworkID\",\"$episodeLength\",\"$youtubeVideoId\");" >> $animeSQL
 }
 
 episodeSQL(){
@@ -2470,17 +2422,16 @@ episodeSQL(){
 		en_jp=""
 	fi
 	en_jp="${en_jp// ,}"
-	en_jp="${en_jp// ,}"
 	local seasonNumber=$(./parseJson.sh "${file}" "seasonNumber")
 	if [[ "${seasonNumber}" == *"null"* ]];then
-		seasonNumber="NULL"
+		seasonNumber=""
 	else
 		seasonNumber="${seasonNumber//[!0-9]/}"
 	fi
 	seasonNumber="${seasonNumber// ,}"
 	local number=$(./parseJson.sh "${file}" "number")
 	if [[ "${number}" == *"null"* ]];then
-		number="NULL"
+		number=""
 	else
 		number="${number//[!0-9]/}"
 	fi
@@ -2495,12 +2446,12 @@ episodeSQL(){
 	airdate="${airdate// ,}"
 	local length=$(./parseJson.sh "${file}" "length")
 	if [[ "${length}" == *"null"* ]];then
-		length="NULL"
+		length=""
 	else
 		length="${length//[!0-9]/}"
 	fi
 	length="${length// ,}"
-	echo "INSERT INTO episode (id,episode_name,episode_season,episode_number,episode_synopsis,episode_release,episode_duration) VALUES (\"$episodeID\",\"$en_jp\",$seasonNumber,$number,\"$synopsis\",$airdate,$length);" >> $episodeSQL
+	echo "INSERT INTO episode (id,episode_name,episode_season,episode_number,episode_synopsis,episode_release,episode_duration) VALUES (\"$episodeID\",\"$en_jp\",\"$seasonNumber\",\"$number\",\"$synopsis\",$airdate,\"$length\");" >> $episodeSQL
 }
 
 characterSQL(){
@@ -2514,7 +2465,9 @@ characterSQL(){
 	
 	#dossier d'image :
 	local name_slug=$(./parseJson.sh "${file}" "slug")
-	name_slug=`echo "$name_slug" | sed -e 's/[.*"<>?:|\/]//g'`
+	name_slug="${name_slug//\./}"
+	name_slug="${name_slug//\//}"
+	name_slug="${name_slug// ,}"
 	
 	if [ "$name_slug" = 'slug":null,' ];then
 		name_slug=$(./parseJson.sh "${file}" "name")
@@ -2527,8 +2480,10 @@ peopleSQL(){
 	local file="${1}"
 	peopleID="${2}"
 	#dossier d'image et nom
-	local name=$(./parseJson.sh "${file}" "name")local name_slug=$(./parseJson.sh "${file}" "slug")
-	name=`echo "$name" | sed -e 's/[.*"<>?:|\/]//g'`
+	local name=$(./parseJson.sh "${file}" "name")
+	name="${name//\./}"
+	name="${name//\//}"
+	name="${name// ,}" 
 	local artistImage="${image}/Peoples/${name}/${name}-original.jpg"	
 	echo "INSERT INTO artist (id,artist_name,artist_image) VALUES (\"$peopleID\",\"$name\",\"$artistImage\");" >> $peopleSQL
 }
@@ -2547,43 +2502,11 @@ peopleSQLByStartEnd(){
 	done	
 }
 
-peopleSQLBylist(){
-	local cptpeople=$lastPeople listname=$1
-
-	for i in `cat $listname`;do
-		#gestion de la pause
-		pause
-		echo $i
-		if [ -f "${peopleDIR}/${i}" ];then
-			((cptpeople++))
-			peopleSQL "${peopleDIR}/${i}" "$cptpeople"
-			idToTXT "$cptpeople" "$i" "$peopleTXT"
-			echo "${cptpeople}" >| $lastPeopleTXT
-		fi
-	done	
-}
-
 characterSQLByStartEnd(){
 	local cptcharacter=$lastCharacter
 	for ((i="$1";i<="$2";i++ ));do
 		#gestion de la pause
 		pause
-		if [ -f "${charactersDIR}/$i" ];then
-			((cptcharacter++))
-			characterSQL "${charactersDIR}/$i" "$cptcharacter"
-			idToTXT "$cptcharacter" "$i" "$characterTXT"
-			echo "${cptcharacter}" >| $lastCharacterTXT
-		fi
-	done
-}
-
-characterSQLByList(){
-	local cptcharacter=$lastCharacter listname=$1
-
-	for i in `cat $listname`;do
-		#gestion de la pause
-		pause
-		echo $i
 		if [ -f "${charactersDIR}/$i" ];then
 			((cptcharacter++))
 			characterSQL "${charactersDIR}/$i" "$cptcharacter"
@@ -2624,26 +2547,26 @@ mangaSQLALL(){
 					if [ -f "${chapter}" ]; then
 						((cptchapter++))
 						chapterNum="${chapter##${mangaDIR}/${i}/}"
-
-						if [ "${subtype,,}" = "novel" ];then
-							chapterLNSQL "$chapter" "$cptchapter" "$cptlightNovel"
-						else
-							chapterMSQL "$chapter" "$cptchapter" "$cptmanga"
-						fi
+						chapterSQL "$chapter" "$cptchapter"
 						idToTXT "$cptchapter" "$chapterNum" "$chapterTXT"
+						if [ "${subtype,,}" = "novel" ];then
+							lightnovelChapterSQL "$cptlightNovel" "$cptchapter"
+						else
+							mangaChapterSQL "$cptmanga" "$cptchapter"
+						fi
 					fi
 				fi
-			done
+			done		
 			
 			#les genres du manga, light novel
 			if [ -f "${mangaDIR}/${i}/${i}.genre" ];then
-				genres=$(getGenre "${mangaDIR}/${i}/${i}.genre")
+				genres=$(getGenre "${$mangaDIR}/${i}/${i}.genre")
 				artworkGenreSQL "$artwork" "$genres"
 			fi			
 					
 		elif [ -f "${mangaDIR}/${i}.json" ];then
 			((artwork++))
-			local subtype=$(./parseJson.sh "${mangaDIR}/${i}.json" "subtype")
+			local subtype=$(./parseJson.sh "${$mangaDIR}/${i}.json" "subtype")
 			if [ "${subtype,,}" = "novel" ];then
 				((cptlightNovel++))
 				mangaSQL "${mangaDIR}/${i}.json" "$cptlightNovel" "$artwork"
@@ -2658,7 +2581,7 @@ mangaSQLALL(){
 			
 			#les genres du manga
 			if [ -f "${mangaDIR}/${i}.genre" ];then				
-				genres=$(getGenre "${mangaDIR}/${i}.genre")
+				genres=$(getGenre "${$mangaDIR}/${i}.genre")
 				artworkGenreSQL "$artwork" "$genres"
 			fi
 			
@@ -2678,7 +2601,6 @@ animeSQLALL(){
 		#gestion de la pause
 		pause
 		if [ -d "${animeDIR}/${i}" ]; then
-			echo "${animeDIR}/${i}"
 			((cptanime++))
 			((artwork++))
 			# Will not run if no directories are available
@@ -2693,7 +2615,7 @@ animeSQLALL(){
 						episodeNum="${episode##${episodeDIR}/${i}/}"
 						episodeSQL "${episode}" "$cptepisode"
 						animeEpisodeSQL "$cptanime" "$cptepisode"
-						idToTXT "$cptepisode" "$episodeNum" "$episodeTXT"
+						idToTXT "$cptepisode" "$episode" "$episodeTXT"
 					fi
 				fi
 			done
@@ -2734,49 +2656,15 @@ usage(){
 initLastTXT
 if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "-usage" ]; then
 	usage
-fi
-
-
-flag_list=false
-if [[ "${2}" == *.txt  ]]; then																			#detect list.txt
-	flag_list=true
-	filelist="$2"
-	if [ ! -f ${filelist} ]; then
-		echo "file ${filelist} not found"
-		usage > /dev/stderr
-		exit 1
-	fi
-	temp=1
-	while [ -f ".temp${temp}.txt" ]; do
-		((++temp))
-	done
-	filelistname=".temp${temp}.txt"
-	sort -g -u "${filelist}" >| "${filelistname}"
-fi
-
-
-if [ "${1}" = "-c" ];then
-	if $flag_list ; then
-		characterSQLByList ${filelistname}
-	else
-		characterSQLByStartEnd "${2}" "${3}"
-	fi
+elif [ "${1}" = "-c" ];then
+	characterSQLByStartEnd "${2}" "${3}"
 elif [ "${1}" = "-a" ];then
 	animeSQLALL "${2}" "${3}"
 elif [ "${1}" = "-m" ];then
 	mangaSQLALL "${2}" "${3}"
 elif [ "${1}" = "-p" ];then
-	if $flag_list ; then
-		peopleSQLBylist ${filelistname}
-	else
-		peopleSQLByStartEnd "${2}" "${3}"
-	fi
+	peopleSQLByStartEnd "${2}" "${3}"
 else
-	echo yolo
 	usage
 fi
-if $flag_list ; then
-	rm $filelistname
-fi
-exit 0
 #MainEND----------------------------------------------------------------
